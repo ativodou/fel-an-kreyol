@@ -350,6 +350,24 @@ nav { display: flex; align-items: center; gap: 2rem; }
 }
 .donate-note a { color: var(--sapphire); text-decoration: none; }
 .donate-note a:hover { text-decoration: underline; }
+.pay-method-row {
+  display: flex; gap: 0.6rem; margin-bottom: 1.5rem;
+}
+.pay-method-btn {
+  flex: 1; padding: 0.65rem 0.5rem; border-radius: 10px; cursor: pointer;
+  border: 2px solid var(--cream-dark); background: white;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  transition: all 0.2s;
+}
+.pay-method-btn.active.card   { border-color: var(--sapphire); background: var(--sapphire); color: white; }
+.pay-method-btn.active.moncash{ border-color: #E31837; background: #E31837; color: white; }
+.pay-method-btn:not(.active):hover { border-color: var(--sapphire-mid); }
+.donate-btn.moncash-btn { background: #E31837; box-shadow: 0 4px 20px rgba(227,24,55,0.3); }
+.donate-btn.moncash-btn:hover { background: #c0122d; box-shadow: 0 8px 30px rgba(227,24,55,0.4); }
+.amounts-htg { display: none; }
+.amounts-htg.visible { display: grid; }
 .error-msg { color: var(--rouge); font-size: 0.8rem; text-align: center; margin-top: 0.75rem; }
 
 /* ── GALLERY ────────────────────────────── */
@@ -711,7 +729,19 @@ footer {
   </p>
 
   <div class="donate-card">
-    <div class="donate-tabs">
+
+    <!-- Payment method selector -->
+    <div class="pay-method-row">
+      <button class="pay-method-btn card active" id="pm-card" onclick="setPayMethod('card')">
+        💳 <span data-ht="Kat Kredi" data-en="Credit Card">Kat Kredi</span>
+      </button>
+      <button class="pay-method-btn moncash" id="pm-moncash" onclick="setPayMethod('moncash')">
+        📱 MonCash
+      </button>
+    </div>
+
+    <!-- Frequency tabs (card only) -->
+    <div class="donate-tabs" id="freq-tabs">
       <button class="donate-tab active" id="tab-once" onclick="setMode('once')">
         <span data-ht="Yon Fwa" data-en="One-Time">Yon Fwa</span>
       </button>
@@ -720,6 +750,7 @@ footer {
       </button>
     </div>
 
+    <!-- USD presets (card) -->
     <div class="amounts-grid" id="amounts-grid">
       <button class="amount-btn" onclick="selectAmount(10)">
         <span class="amount-val">$10</span>
@@ -747,22 +778,51 @@ footer {
       </button>
     </div>
 
+    <!-- HTG presets (MonCash) -->
+    <div class="amounts-grid amounts-htg" id="amounts-htg">
+      <button class="amount-btn" onclick="selectAmountHTG(1000)">
+        <span class="amount-val" style="font-size:1.25rem">1,000 G</span>
+        <span class="amount-impact" data-ht="Kèk liv pou yon timoun" data-en="A few books for a child">Kèk liv pou yon timoun</span>
+      </button>
+      <button class="amount-btn selected" onclick="selectAmountHTG(2500)">
+        <span class="amount-val" style="font-size:1.25rem">2,500 G</span>
+        <span class="amount-impact" data-ht="5 liv pou yon klas" data-en="5 books for a class">5 liv pou yon klas</span>
+      </button>
+      <button class="amount-btn" onclick="selectAmountHTG(5000)">
+        <span class="amount-val" style="font-size:1.25rem">5,000 G</span>
+        <span class="amount-impact" data-ht="10 liv pou yon lekòl" data-en="10 books for a school">10 liv pou yon lekòl</span>
+      </button>
+      <button class="amount-btn" onclick="selectAmountHTG(10000)">
+        <span class="amount-val" style="font-size:1.15rem">10,000 G</span>
+        <span class="amount-impact" data-ht="Yon seri konplè" data-en="A complete series">Yon seri konplè</span>
+      </button>
+      <button class="amount-btn" onclick="selectAmountHTG(25000)">
+        <span class="amount-val" style="font-size:1.15rem">25,000 G</span>
+        <span class="amount-impact" data-ht="Bibliytèk pou yon lekòl" data-en="A school library">Bibliytèk pou yon lekòl</span>
+      </button>
+      <button class="amount-btn" id="custom-htg-btn" onclick="focusCustomHTG()">
+        <span class="amount-val" style="font-size:1.1rem" data-ht="Lòt" data-en="Other">Lòt</span>
+        <span class="amount-impact" data-ht="Montan ou chwazi" data-en="Your choice">Montan ou chwazi</span>
+      </button>
+    </div>
+
+    <!-- Custom input (shared, currency symbol swaps) -->
     <div class="custom-row">
       <span class="custom-label" data-ht="Montan:" data-en="Amount:">Montan:</span>
       <div class="custom-input-wrap">
-        <span class="custom-currency">$</span>
+        <span class="custom-currency" id="custom-currency-sym">$</span>
         <input type="number" class="custom-input" id="custom-amount" min="1" placeholder="25" value="25" oninput="onCustomInput(this.value)">
       </div>
     </div>
 
     <button class="donate-btn" id="donate-btn" onclick="submitDonation()">
-      <span>❤️</span>
+      <span id="donate-btn-icon">❤️</span>
       <span id="donate-btn-text" data-ht="Fè yon Don Kounye a" data-en="Donate Now">Fè yon Don Kounye a</span>
     </button>
     <p class="error-msg" id="error-msg" style="display:none"></p>
-    <p class="donate-note">
+    <p class="donate-note" id="donate-note">
       <span data-ht="Peman an sekirize pa " data-en="Payment secured by ">Peman an sekirize pa </span><strong>Stripe</strong>.
-      <span data-ht=" Fèl an Kreyòl Inc. se yon òganizasyon 501(c)(3) an pandan. Don ou ka dediktib sou taks ou." data-en=" Fèl an Kreyòl Inc. is a pending 501(c)(3). Your donation may be tax-deductible."> Fèl an Kreyòl Inc. se yon òganizasyon 501(c)(3) an pandan.</span>
+      <span data-ht=" Fèl an Kreyòl Inc. se yon òganizasyon 501(c)(3) an pandan." data-en=" Fèl an Kreyòl Inc. is a pending 501(c)(3)."> Fèl an Kreyòl Inc. se yon òganizasyon 501(c)(3) an pandan.</span>
     </p>
   </div>
 </section>
@@ -959,7 +1019,53 @@ window.addEventListener('scroll', () => {
 
 // ── Donation logic ──────────────────────────
 let selectedAmount = 25;
+let selectedAmountHTG = 2500;
 let donateMode = 'once';
+let payMethod = 'card';
+
+function setPayMethod(method) {
+  payMethod = method;
+  document.getElementById('pm-card').classList.toggle('active', method === 'card');
+  document.getElementById('pm-moncash').classList.toggle('active', method === 'moncash');
+  document.getElementById('pm-card').classList.toggle('card', true);
+  document.getElementById('pm-moncash').classList.toggle('moncash', true);
+
+  const isMonCash = method === 'moncash';
+  document.getElementById('freq-tabs').style.display = isMonCash ? 'none' : '';
+  document.getElementById('amounts-grid').style.display = isMonCash ? 'none' : '';
+  document.getElementById('amounts-htg').classList.toggle('visible', isMonCash);
+
+  const sym = document.getElementById('custom-currency-sym');
+  const input = document.getElementById('custom-amount');
+  if (isMonCash) {
+    sym.textContent = 'G';
+    input.value = selectedAmountHTG;
+    input.placeholder = '2500';
+  } else {
+    sym.textContent = '$';
+    input.value = selectedAmount;
+    input.placeholder = '25';
+  }
+
+  const btn = document.getElementById('donate-btn');
+  if (isMonCash) {
+    btn.classList.add('moncash-btn');
+  } else {
+    btn.classList.remove('moncash-btn');
+  }
+
+  const noteEl = document.getElementById('donate-note');
+  if (isMonCash) {
+    noteEl.innerHTML = currentLang === 'ht'
+      ? 'Peman an pwosese pa <strong>MonCash (Digicel Haiti)</strong>. Disponib pou kont MonCash aktif.'
+      : 'Payment processed by <strong>MonCash (Digicel Haiti)</strong>. Available for active MonCash accounts.';
+  } else {
+    noteEl.innerHTML = (currentLang === 'ht'
+      ? 'Peman an sekirize pa <strong>Stripe</strong>. Fèl an Kreyòl Inc. se yon òganizasyon 501(c)(3) an pandan.'
+      : 'Payment secured by <strong>Stripe</strong>. Fèl an Kreyòl Inc. is a pending 501(c)(3).');
+  }
+  updateDonateBtn();
+}
 
 function setMode(mode) {
   donateMode = mode;
@@ -971,9 +1077,21 @@ function setMode(mode) {
 function selectAmount(amt) {
   selectedAmount = amt;
   document.getElementById('custom-amount').value = amt;
-  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-  const btns = document.querySelectorAll('#amounts-grid .amount-btn');
+  document.querySelectorAll('#amounts-grid .amount-btn').forEach(b => b.classList.remove('selected'));
   const presets = [10, 25, 50, 100, 250];
+  const btns = document.querySelectorAll('#amounts-grid .amount-btn');
+  const idx = presets.indexOf(amt);
+  if (idx !== -1) btns[idx].classList.add('selected');
+  else btns[5].classList.add('selected');
+  updateDonateBtn();
+}
+
+function selectAmountHTG(amt) {
+  selectedAmountHTG = amt;
+  document.getElementById('custom-amount').value = amt;
+  document.querySelectorAll('#amounts-htg .amount-btn').forEach(b => b.classList.remove('selected'));
+  const presets = [1000, 2500, 5000, 10000, 25000];
+  const btns = document.querySelectorAll('#amounts-htg .amount-btn');
   const idx = presets.indexOf(amt);
   if (idx !== -1) btns[idx].classList.add('selected');
   else btns[5].classList.add('selected');
@@ -981,37 +1099,58 @@ function selectAmount(amt) {
 }
 
 function focusCustom() {
-  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#amounts-grid .amount-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('custom-btn').classList.add('selected');
+  document.getElementById('custom-amount').focus();
+}
+
+function focusCustomHTG() {
+  document.querySelectorAll('#amounts-htg .amount-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('custom-htg-btn').classList.add('selected');
   document.getElementById('custom-amount').focus();
 }
 
 function onCustomInput(val) {
   const n = parseFloat(val);
   if (!isNaN(n) && n > 0) {
-    selectedAmount = n;
-    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-    const presets = [10, 25, 50, 100, 250];
-    const btns = document.querySelectorAll('#amounts-grid .amount-btn');
-    const idx = presets.indexOf(n);
-    if (idx !== -1) btns[idx].classList.add('selected');
-    else btns[5].classList.add('selected');
+    if (payMethod === 'moncash') {
+      selectedAmountHTG = n;
+      document.querySelectorAll('#amounts-htg .amount-btn').forEach(b => b.classList.remove('selected'));
+      const presets = [1000, 2500, 5000, 10000, 25000];
+      const btns = document.querySelectorAll('#amounts-htg .amount-btn');
+      const idx = presets.indexOf(n);
+      btns[idx !== -1 ? idx : 5].classList.add('selected');
+    } else {
+      selectedAmount = n;
+      document.querySelectorAll('#amounts-grid .amount-btn').forEach(b => b.classList.remove('selected'));
+      const presets = [10, 25, 50, 100, 250];
+      const btns = document.querySelectorAll('#amounts-grid .amount-btn');
+      const idx = presets.indexOf(n);
+      btns[idx !== -1 ? idx : 5].classList.add('selected');
+    }
   }
   updateDonateBtn();
 }
 
 function updateDonateBtn() {
-  const btn = document.getElementById('donate-btn-text');
-  const amt = selectedAmount || parseFloat(document.getElementById('custom-amount').value) || 0;
+  const btnText = document.getElementById('donate-btn-text');
+  const btnIcon = document.getElementById('donate-btn-icon');
   const monthly = donateMode === 'monthly';
-  if (currentLang === 'ht') {
-    btn.textContent = monthly
-      ? `Fè yon Don $${amt}/mwa`
-      : `Fè yon Don $${amt}`;
+
+  if (payMethod === 'moncash') {
+    const amt = selectedAmountHTG || parseFloat(document.getElementById('custom-amount').value) || 0;
+    btnIcon.textContent = '📱';
+    btnText.textContent = currentLang === 'ht'
+      ? `Peye ${amt.toLocaleString()} G ak MonCash`
+      : `Pay ${amt.toLocaleString()} HTG via MonCash`;
   } else {
-    btn.textContent = monthly
-      ? `Donate $${amt}/month`
-      : `Donate $${amt}`;
+    const amt = selectedAmount || parseFloat(document.getElementById('custom-amount').value) || 0;
+    btnIcon.textContent = '❤️';
+    if (currentLang === 'ht') {
+      btnText.textContent = monthly ? `Fè yon Don $${amt}/mwa` : `Fè yon Don $${amt}`;
+    } else {
+      btnText.textContent = monthly ? `Donate $${amt}/month` : `Donate $${amt}`;
+    }
   }
 }
 
@@ -1028,18 +1167,23 @@ async function submitDonation() {
 
   const btn = document.getElementById('donate-btn');
   btn.disabled = true;
-  btn.querySelector('#donate-btn-text').textContent = currentLang === 'ht' ? 'Ap chaje...' : 'Loading...';
+  document.getElementById('donate-btn-text').textContent = currentLang === 'ht' ? 'Ap chaje...' : 'Loading...';
 
   try {
-    const res = await fetch('/api/donate', {
+    const endpoint = payMethod === 'moncash' ? '/api/moncash' : '/api/donate';
+    const body = payMethod === 'moncash'
+      ? { amount: amt }
+      : {
+          amount: amt,
+          mode: donateMode === 'monthly' ? 'subscription' : 'payment',
+          successUrl: window.location.origin + '/success',
+          cancelUrl: window.location.origin + '/#donate',
+        };
+
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: amt,
-        mode: donateMode === 'monthly' ? 'subscription' : 'payment',
-        successUrl: window.location.origin + '/success',
-        cancelUrl: window.location.origin + '/#donate',
-      }),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
     if (data.url) {
