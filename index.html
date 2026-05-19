@@ -388,6 +388,56 @@ nav { display: flex; align-items: center; gap: 2rem; }
 .story-book:nth-child(4) { transform: translateY(-1.5rem); }
 .story-book:nth-child(4):hover { transform: translateY(calc(-1.5rem - 6px)); }
 
+/* ── FOUNDER ────────────────────────────── */
+.founder-section {
+  padding: 5rem 2.5rem;
+  background: var(--sapphire-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+}
+.founder-photo-wrap {
+  flex-shrink: 0;
+  width: 240px;
+}
+.founder-photo-wrap img {
+  width: 100%;
+  display: block;
+  border-radius: 4px;
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.5));
+}
+.founder-text {
+  max-width: 480px;
+}
+.founder-eyebrow {
+  font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem; display: block;
+}
+.founder-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--cream);
+  margin-bottom: 1.75rem;
+}
+.founder-quote::before { content: '\201C'; color: var(--gold); }
+.founder-quote::after  { content: '\201D'; color: var(--gold); }
+.founder-name {
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem; font-weight: 600;
+  color: #fff; margin-bottom: 0.25rem;
+}
+.founder-title {
+  font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(250,244,232,0.4);
+}
+@media (max-width: 700px) {
+  .founder-section { flex-direction: column; gap: 2rem; padding: 3.5rem 1.5rem; text-align: center; }
+  .founder-photo-wrap { width: 180px; }
+}
+
 /* ── NONPROFIT BADGE ────────────────────────────── */
 .badge-section {
   background: var(--cream-dark);
@@ -745,6 +795,23 @@ footer {
       <div class="story-book"><img src="images/TEKNIK_TIPRIZ_Vol1_Cover.png" alt="TI PRIZ Elektrisite" loading="lazy"></div>
       <div class="story-book"><img src="images/TEKNIK_KOUPEKLOURE_Vol1_Cover.png" alt="Koupe Kloure Chapantri" loading="lazy"></div>
     </div>
+  </div>
+</section>
+
+<!-- ── FOUNDER ── -->
+<section class="founder-section">
+  <div class="founder-photo-wrap">
+    <img src="images/founder.jpeg" alt="Carl Henri Desmornes — Fondatè Fèl an Kreyòl Inc." loading="lazy">
+  </div>
+  <div class="founder-text">
+    <span class="founder-eyebrow" data-ht="Mo fondatè a" data-en="A word from the founder">Mo fondatè a</span>
+    <p class="founder-quote"
+       data-ht="Pou 220 an, pa t gen yon sèl liv dwa ni yon sèl manyèl metye teknik an Kreyòl. Nou p ap tann 220 an ankò."
+       data-en="For 220 years, there was not a single legal book or technical manual in Creole. We are not waiting another 220 years.">
+      Pou 220 an, pa t gen yon sèl liv dwa ni yon sèl manyèl metye teknik an Kreyòl. Nou p ap tann 220 an ankò.
+    </p>
+    <div class="founder-name">Carl Henri Desmornes</div>
+    <div class="founder-title" data-ht="Fondatè — Fèl an Kreyòl Inc." data-en="Founder — Fèl an Kreyòl Inc.">Fondatè — Fèl an Kreyòl Inc.</div>
   </div>
 </section>
 
